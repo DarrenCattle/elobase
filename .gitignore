@@ -2,3 +2,6 @@
 .idea/vcs.xml
 src/__pycache__/Player.cpython-35.pyc
 elobase.iml
+.idea/modules.xml
+.idea/workspace.xml
+src/__pycache__/__init__.cpython-35.pyc
