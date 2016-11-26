@@ -1,8 +1,4 @@
-'''
-elobase
-Darren Cattle
-November 2016
-'''
+import math
 
 class Player:
 
@@ -28,15 +24,9 @@ class Player:
         r_b = PB.elo
         e_a = 1/(1+pow(10,(r_b-r_a)/Player.r_factor))
         e_b = 1/(1+pow(10,(r_a-r_b)/Player.r_factor))
-        self.elo = r_a + Player.k_factor*(1-e_a)
-        PB.elo = r_b + Player.k_factor*(0-e_b)
+        self.elo = r_a + math.ceil(Player.k_factor*(1-e_a))
+        PB.elo = r_b + math.ceil(Player.k_factor*(0-e_b))
         print(self.elo, PB.elo)
 
-p1 = Player("A", 1500)
-p2 = Player("B", 1200)
-p3 = Player("C")
-
-Player.disp()
-for x in range(10):
-    p2.win(p1)
-Player.disp()
+    def lose(self,PB):
+        PB.win(self)
