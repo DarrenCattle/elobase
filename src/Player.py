@@ -1,10 +1,13 @@
 import math
+from src.Database import Database
 
 class Player:
 
     k_factor = 32
     r_factor = 400
     player_list = []
+
+    db = Database()
 
     def __init__(self, n=None, e=None):
         self.name = n if n is not None else ""
