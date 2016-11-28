@@ -27,9 +27,13 @@ class Player:
         r_b = PB.elo
         e_a = 1/(1+pow(10,(r_b-r_a)/Player.r_factor))
         e_b = 1/(1+pow(10,(r_a-r_b)/Player.r_factor))
-        self.elo = r_a + math.ceil(Player.k_factor*(1-e_a))
-        PB.elo = r_b + math.ceil(Player.k_factor*(0-e_b))
-        print(self.elo, PB.elo)
+        gain = math.ceil(Player.k_factor*(1-e_a))
+        loss = math.ceil(Player.k_factor*(0-e_b))
+        self.elo += gain
+        PB.elo += loss
+        print(self.name + " has defeated " + PB.name)
+        print(self.name + " +" + str(gain) + " " + str(self.elo))
+        print(PB.name + " " + str(loss) + " " + str(PB.elo))
 
     def lose(self,PB):
         PB.win(self)
