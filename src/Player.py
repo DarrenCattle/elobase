@@ -7,13 +7,12 @@ class Player:
     r_factor = 400
     player_list = []
 
-    db = Database()
-
     def __init__(self, n=None, e=None):
         self.name = n if n is not None else ""
         self.elo = e if e is not None else 1000
         self.history = []
         Player.player_list.append(self)
+        Database.insertPlayer("pin",self)
 
     def __str__(self):
         return 'Name: ' + self.name + ', Elo: ' + str(self.elo)
@@ -34,6 +33,8 @@ class Player:
         print(self.name + " has defeated " + PB.name)
         print(self.name + " +" + str(gain) + " " + str(self.elo))
         print(PB.name + " " + str(loss) + " " + str(PB.elo))
+        Database.updateRating("pin",self)
+        Database.updateRating("pin",PB)
 
     def lose(self,PB):
         PB.win(self)

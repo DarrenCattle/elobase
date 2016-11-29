@@ -6,3 +6,7 @@ elobase.iml
 .idea/workspace.xml
 
 src/__pycache__/
+
+*.pyc
+
+elobase.db-journal

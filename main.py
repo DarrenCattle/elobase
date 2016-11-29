@@ -16,5 +16,7 @@ a.win(b)
 b.win(c)
 c.win(a)
 
-index = Database()
-print("index = Database() success")
+tic = Database("tic")
+
+db = Database()
+print("db = Database() success")
