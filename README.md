@@ -2,10 +2,13 @@
 open in terminal
 `python -i main.py`    
 # Tech    
-- Python 3    
-- Sqlite 3 (for development)    
-# Architecture    
-## Players    
+ - Python 3    
+ - Sqlite 3 (for development)
+
+# Architecture  
+
+## Players
+
 - id
 - name
 - Game_History ("tic")
