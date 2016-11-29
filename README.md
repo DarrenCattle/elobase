@@ -6,23 +6,28 @@
 
 # Architecture  
 
-### Players
-
+### Player
 - id
 - name
-- Game_History ("tic")
-- Game_History ("tac")
-- Game_History ("toe")
-- Summary Object
-  - {(name, rating, wins, losses)}
-  - {("tic", 1000, 12, 32), ("tac", 1100, 23, 32), ("toe", 1200, 32, 23)}
+    
+### Game
+- id
+- name
+    
+### Instance
+- id
+- created
+- game_id
+- winner_id
+- loser_id
 
-### Databases
-  
-- Player_DB (master table)
-- Game_History_DB (could be individual or combined)
-- Game_Players_DB ("tic")
-- Game_History_DB 
-- Game_Players_DB ("tac")
-- Game_History_DB
-- Game_Players_DB ("toe")
+### Result
+- id
+- created
+- game_id
+- instance_id
+- player_id
+- elo
+
+### Instance_Multi
+- in development
