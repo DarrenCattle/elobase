@@ -10,6 +10,14 @@ class Database:
     def createGame(self, name):
         query_string = "CREATE TABLE " + name + '''(ID INT PRIMARY KEY     NOT NULL,
         NAME           TEXT    NOT NULL,
+        SUMMARY        TEXT    NOT NULL,
+        RATING         TEXT    NOT NULL);'''
+        Database.conn.execute(query_string)
+        print(name + " empty table created successfully")
+
+    def createMaster(self, name):
+        query_string = "CREATE TABLE MASTER " + '''(ID INT PRIMARY KEY     NOT NULL,
+        NAME           TEXT    NOT NULL,
         DATA           TEXT    NOT NULL,
         RECORD         TEXT    NOT NULL,
         GAMES          INT     NOT NULL,
@@ -17,17 +25,27 @@ class Database:
         Database.conn.execute(query_string)
         print(name + " empty table created successfully")
 
-    def insertPlayer(game, player):
+    @staticmethod
+    def getFreshID():
+        query_string = "SELECT id, name, data, record, games, rating  from " + game
+        result = Database.conn.execute(query_string)
+        id_list = []
+        for row in result:
+            id_list.append(row[0])
+        for x in range(1,len(id_list)+2):
+            if x not in id_list:
+                return str(x)
 
-        def createID(game):
-            query_string = "SELECT id, name, data, record, games, rating  from " + game
-            result = Database.conn.execute(query_string)
-            id_list = []
-            for row in result:
-                id_list.append(row[0])
-            for x in range(1,len(id_list)+2):
-                if x not in id_list:
-                    return str(x)
+    @staticmethod
+    def createPlayer(player):
+        builder = "VALUES (" + createID(game) + ",'" + player.name + "','fill','fill',1," + str(player.elo) + ")"
+        query_string = "INSERT INTO " + game + " (ID,NAME,DATA,RECORD,GAMES,RATING) " + builder
+        Database.conn.execute(query_string)
+        Database.conn.commit()
+        print(query_string)
+        print(player.name + " inserted into " + game)
+
+    def insertPlayer(game, player):
 
         builder = "VALUES (" + createID(game) + ",'" + player.name + "','fill','fill',1," + str(player.elo) + ")"
         query_string = "INSERT INTO " + game + " (ID,NAME,DATA,RECORD,GAMES,RATING) " + builder
