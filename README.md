@@ -1,5 +1,5 @@
- # elobase
-open in terminal    
+# elobase    
+open in terminal
 `python -i main.py`    
  # Tech    
 - Python 3    
