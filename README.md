@@ -1,11 +1,11 @@
 # elobase    
 open in terminal
 `python -i main.py`    
- # Tech    
+# Tech    
 - Python 3    
 - Sqlite 3 (for development)    
- # Architecture    
- ### Players    
+# Architecture    
+## Players    
 - id
 - name
 - Game_History ("tic")
