@@ -15,8 +15,8 @@ open in terminal
 - Game_History ("tac")
 - Game_History ("toe")
 - Summary Object
--- {(name, rating, wins, losses)}
--- {("tic", 1000, 12, 32), ("tac", 1100, 23, 32), ("toe", 1200, 32, 23)}
+  - {(name, rating, wins, losses)}
+  - {("tic", 1000, 12, 32), ("tac", 1100, 23, 32), ("toe", 1200, 32, 23)}
 
 ### Databases
   
