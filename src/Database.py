@@ -76,8 +76,8 @@ class Database:
         query_string = "INSERT INTO instance (ID,GAME_ID,WINNER_ID,LOSER_ID,CREATED) " + builder
         Database.conn.execute(query_string)
         Database.conn.commit()
-        print(query_string)
-        print(str(winner_id) + " inserted into instance table to defeat " + str(loser_id))
+        #print(query_string)
+        print(str(winner_id) + " inserted into instance table with ID " + str(fresh_id))
         return fresh_id
 
     @staticmethod
@@ -87,25 +87,26 @@ class Database:
         query_string = "INSERT INTO result (ID,CREATED,GAME_ID,INSTANCE_ID,PLAYER_ID,ELO) " + builder
         Database.conn.execute(query_string)
         Database.conn.commit()
-        print(query_string)
-        print(str(Database.getPlayerName(player_id)) + " inserted into result table with " + str(Database.getElo(player_id)))
+        #print(query_string)
+        print(str(Database.getPlayerName(player_id)) + " inserted into result table with " + str(Database.getElo(player_id,game_id)))
 
     @staticmethod
     def getPlayerName(player_id):
         header = "SELECT id, name from player WHERE id='" + str(player_id) + "'"
         result = Database.conn.execute(header)
         for row in result:
-            print("PLAYER_ID = " + str(row[0]))
-            print("PLAYER_NAME = " + str(row[1]))
+            #print("PLAYER_ID = " + str(row[0]))
+            #print("PLAYER_NAME = " + str(row[1]))
             return row[1]
+        return 0
 
     @staticmethod
     def getGameName(game_id):
         header = "SELECT id, name from game WHERE id='" + str(game_id) + "'"
         result = Database.conn.execute(header)
         for row in result:
-            print("GAME_ID = " + str(row[0]))
-            print("GAME_NAME = " + str(row[1]))
+            #print("GAME_ID = " + str(row[0]))
+            #print("GAME_NAME = " + str(row[1]))
             return row[1]
 
     @staticmethod
@@ -120,5 +121,6 @@ class Database:
         if count == 0:
             print("no results found, therefore ELO is default 1000")
             return elo
+        #print(str(player_id) + " player elo: " + str(elo))
         return elo
 

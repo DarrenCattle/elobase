@@ -16,5 +16,11 @@ from src.Database import Database
 #b.win(c)
 #c.win(a)
 
+p = Player
 db = Database()
+
+print("p = Player() success")
 print("db = Database() success")
+
+a = p.getPlayer(1)
+b = p.getPlayer(2)
