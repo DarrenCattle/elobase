@@ -16,11 +16,20 @@ from src.Database import Database
 #b.win(c)
 #c.win(a)
 
-p = Player
-db = Database()
+'''
+Only use Player methods which will call Database() other than createMaster()
 
+p = Player can call 4 methods
+
+1. a = p.createPlayer(player_name)
+2. b = p.getPlayer(player_id)
+3. a.win(b,1)
+4. a.lose(b,1)
+
+'''
+
+p = Player
 print("p = Player() success")
-print("db = Database() success")
 
 a = p.getPlayer(1)
 b = p.getPlayer(2)

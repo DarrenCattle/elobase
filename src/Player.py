@@ -20,9 +20,9 @@ class Player:
         else:
             return Player(i, name)
 
-    def createPlayer(name):
+    def createPlayer(player_name):
         i = Database.getFreshID("player")
-        player = Player(i,name)
+        player = Player(i,player_name)
         Database.createPlayer(player)
         return Player.getPlayer(i)
 
