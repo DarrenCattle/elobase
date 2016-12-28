@@ -4,7 +4,6 @@ Darren Cattle
 November 2016
 '''
 
-import django
 from src.Player import Player
 from src.Database import Database
 

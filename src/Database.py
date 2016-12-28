@@ -27,16 +27,18 @@ class Database:
     @staticmethod
     def createGameTable(game_name):
 
+        name = game_name.lower()
+
         #create game_players table
-        player_table = 'CREATE TABLE ' + game_name.lower() + '''_players(
+        player_table = 'CREATE TABLE ' + name + '''_players(
         player_id INT NOT NULL REFERENCES player_master(id),
         elo INT NOT NULL
         );'''
         Database.conn.execute(player_table)
-        print("table " + game_name + "_players(player_id, elo) created")
+        print("table " + name + "_players(player_id, elo) created")
 
         #create game_results table
-        result_table = 'CREATE TABLE ' + game_name.lower() + '''_results(
+        result_table = 'CREATE TABLE ' + name + '''_results(
         id INT PRIMARY KEY NOT NULL,
         winner_id INT NOT NULL REFERENCES player_master(id),
         winner_original_elo INT NOT NULL,
@@ -47,17 +49,17 @@ class Database:
         created DATETIME NOT NULL
         );'''
         Database.conn.execute(result_table)
-        print("table " + game_name + "_results(alot) created")
+        print("table " + name + "_results(alot) created")
 
         #insert into game_master table
         fresh_id = Database.getFreshID("game_master")
-        builder = "VALUES (" + fresh_id + ",'" + game_name + "')"
+        builder = "VALUES (" + fresh_id + ",'" + name + "')"
         query_string = "INSERT INTO game_master (ID,NAME) " + builder
         Database.conn.execute(query_string)
 
         Database.conn.commit()
         print(query_string)
-        print(game_name + " inserted into game table with " + fresh_id)
+        print(name + " inserted into game table with " + fresh_id)
 
 
     @staticmethod
@@ -81,35 +83,28 @@ class Database:
         print(player.name + " inserted into player_master table with " + player.id)
 
     @staticmethod
-    def createGame(name):
-        fresh_id = Database.getFreshID("game")
-        builder = "VALUES (" + fresh_id + ",'" + name + "')"
-        query_string = "INSERT INTO game (ID,NAME) " + builder
+    def createResult(game_id, winner_id, winner_elo, winner_result, loser_id, loser_elo, loser_result):
+        game_name = Database.getGameName(game_id)
+        table_name = game_name + "_results"
+        fresh_id = Database.getFreshID(table_name)
+        builder = "VALUES (" + str(fresh_id) + "," + str(winner_id) + "," + str(winner_elo) + "," + str(winner_result)
+        builder += "," + str(loser_id) + "," + str(loser_elo) + "," + str(loser_result) + ",DATETIME('now') )"
+        query_string = "INSERT INTO " + table_name + " (ID,WINNER_ID,WINNER_ORIGINAL_ELO,WINNER_RESULT_ELO,LOSER_ID,LOSER_ORIGINAL_ELO,LOSER_RESULT_ELO,CREATED) " + builder
         Database.conn.execute(query_string)
         Database.conn.commit()
-        print(query_string)
-        print(name + " inserted into game table with " + fresh_id)
+        Database.createEntry(game_id, winner_id, winner_result)
+        Database.createEntry(game_id, loser_id, loser_result)
+        print(str(Database.getPlayerName(winner_id)) + " inserted into result table with " + str(winner_elo))
 
     @staticmethod
-    def createInstance(winner_id, loser_id, game_id):
-        fresh_id = Database.getFreshID("instance")
-        builder = "VALUES (" + fresh_id + "," + str(game_id) + "," + str(winner_id) + "," + str(loser_id) + ",DATETIME('now'))"
-        query_string = "INSERT INTO instance (ID,GAME_ID,WINNER_ID,LOSER_ID,CREATED) " + builder
+    def createEntry(game_id, player_id, player_elo):
+        game_name = Database.getGameName(game_id)
+        table_name = game_name + "_players"
+        query_string = "UPDATE " + table_name + " set ELO = " + str(player_elo) + " where PLAYER_ID=" + str(player_id)
+        if(Database.getElo(player_id, game_id) == 1000):
+            query_string = "INSERT INTO " + table_name + " (PLAYER_ID,ELO) VALUES ( + " + str(player_id) + "," + str(player_elo) + ")"
         Database.conn.execute(query_string)
         Database.conn.commit()
-        #print(query_string)
-        print(str(winner_id) + " inserted into instance table with ID " + str(fresh_id))
-        return fresh_id
-
-    @staticmethod
-    def createResult(game_id, instance_id, player_id, elo):
-        fresh_id = Database.getFreshID("result")
-        builder = "VALUES (" + fresh_id + ",DATETIME('now')," + str(game_id) + "," + str(instance_id) + "," + str(player_id) + "," + str(elo) + ")"
-        query_string = "INSERT INTO result (ID,CREATED,GAME_ID,INSTANCE_ID,PLAYER_ID,ELO) " + builder
-        Database.conn.execute(query_string)
-        Database.conn.commit()
-        #print(query_string)
-        print(str(Database.getPlayerName(player_id)) + " inserted into result table with " + str(Database.getElo(player_id,game_id)))
 
     @staticmethod
     def getPlayerName(player_id):
@@ -123,7 +118,7 @@ class Database:
 
     @staticmethod
     def getGameName(game_id):
-        header = "SELECT id, name from game WHERE id='" + str(game_id) + "'"
+        header = "SELECT id, name from game_master WHERE id='" + str(game_id) + "'"
         result = Database.conn.execute(header)
         for row in result:
             #print("GAME_ID = " + str(row[0]))
@@ -132,13 +127,13 @@ class Database:
 
     @staticmethod
     def getElo(player_id,game_id):
-        header = "SELECT id, created, game_id, player_id, elo from result WHERE player_id='" + str(player_id) + "' AND game_id='" + str(game_id) + "'"
+        header = "SELECT player_id, elo from " + Database.getGameName(game_id) + "_players WHERE player_id='" + str(player_id) + "'"
         result = Database.conn.execute(header)
         count = 0
         elo = 1000
         for row in result:
             count += 1
-            elo = row[4]
+            elo = row[1]
         if count == 0:
             print("no results found, therefore ELO is default 1000")
             return elo

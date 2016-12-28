@@ -36,9 +36,7 @@ class Player:
         gain = math.ceil(Player.k_factor*(1-e_a))
         loss = math.ceil(Player.k_factor*(0-e_b))
 
-        instance_id = Database.createInstance(self.id,PB.id,game_id)
-        Database.createResult(game_id, instance_id, self.id, r_a+gain)
-        Database.createResult(game_id, instance_id, PB.id, r_b+loss)
+        Database.createResult(game_id, self.id, r_a, r_a+gain, PB.id, r_b, r_b+loss)
 
         print(self.name + " has defeated " + PB.name)
         print(self.name + " +" + str(gain) + " " + str(r_a+gain))
