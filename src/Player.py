@@ -21,14 +21,10 @@ class Player:
             return Player(i, name)
 
     def createPlayer(player_name):
-        i = Database.getFreshID("player")
+        i = Database.getFreshID("player_master")
         player = Player(i,player_name)
         Database.createPlayer(player)
         return Player.getPlayer(i)
-
-
-    def disp(self):
-        print('Name: ' + self.name + ', ID: ' + self.id)
 
     def win(self,PB,game_id):
         if(self.id==PB.id):
@@ -40,9 +36,7 @@ class Player:
         gain = math.ceil(Player.k_factor*(1-e_a))
         loss = math.ceil(Player.k_factor*(0-e_b))
 
-        instance_id = Database.createInstance(self.id,PB.id,game_id)
-        Database.createResult(game_id, instance_id, self.id, r_a+gain)
-        Database.createResult(game_id, instance_id, PB.id, r_b+loss)
+        Database.createResult(game_id, self.id, r_a, r_a+gain, PB.id, r_b, r_b+loss)
 
         print(self.name + " has defeated " + PB.name)
         print(self.name + " +" + str(gain) + " " + str(r_a+gain))

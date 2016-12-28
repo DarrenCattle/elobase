@@ -3,41 +3,64 @@ import sqlite3
 
 class Database:
 
-    conn = sqlite3.connect('elobase.db',detect_types=sqlite3.PARSE_DECLTYPES)
+    conn = sqlite3.connect('elobase.db',check_same_thread=False)
     print("Opened elobase successfully")
 
     @staticmethod
-    def createMaster():
-        data = '''CREATE TABLE player (
+    def createPlayerMaster():
+        data = '''CREATE TABLE player_master (
         id INT PRIMARY KEY NOT NULL,
         name TEXT NOT NULL
-        );
+        );'''
+        Database.conn.execute(data)
+        print("table player_master(id, name) created")
 
-        CREATE TABLE game (
+    @staticmethod
+    def createGameMaster():
+        data = '''CREATE TABLE game_master (
         id INT PRIMARY KEY NOT NULL,
         name TEXT NOT NULL
-        );
+        );'''
+        Database.conn.execute(data)
+        print("table game_master(id, name) created")
 
-        CREATE TABLE instance (
-        id INT PRIMARY KEY NOT NULL,
-        created DATETIME NOT NULL,
-        game_id INT NOT NULL REFERENCES game(id),
-        winner_id INT NOT NULL REFERENCES player(id),
-        loser_id INT NOT NULL REFERENCES player(id)
-        );
+    @staticmethod
+    def createGameTable(game_name):
 
-        CREATE TABLE result (
-        id INT PRIMARY KEY NOT NULL,
-        created DATETIME NOT NULL,
-        game_id INT NOT NULL REFERENCES game(id),
-        instance_id INT NOT NULL REFERENCES instance(id),
-        player_id INT NOT NULL REFERENCES player(id),
+        name = game_name.lower()
+
+        #create game_players table
+        player_table = 'CREATE TABLE ' + name + '''_players(
+        player_id INT NOT NULL REFERENCES player_master(id),
         elo INT NOT NULL
         );'''
-        queries = data.split(";")
-        for query in queries:
-            Database.conn.execute(query)
-        print("master 4 tables created")
+        Database.conn.execute(player_table)
+        print("table " + name + "_players(player_id, elo) created")
+
+        #create game_results table
+        result_table = 'CREATE TABLE ' + name + '''_results(
+        id INT PRIMARY KEY NOT NULL,
+        winner_id INT NOT NULL REFERENCES player_master(id),
+        winner_original_elo INT NOT NULL,
+        winner_result_elo INT NOT NULL,
+        loser_id INT NOT NULL REFERENCES player_master(id),
+        loser_original_elo INT NOT NULL,
+        loser_result_elo INT NOT NULL,
+        created DATETIME NOT NULL
+        );'''
+        Database.conn.execute(result_table)
+        print("table " + name + "_results(alot) created")
+
+        #insert into game_master table
+        fresh_id = Database.getFreshID("game_master")
+        builder = "VALUES (" + fresh_id + ",'" + name + "')"
+        query_string = "INSERT INTO game_master (ID,NAME) " + builder
+        Database.conn.execute(query_string)
+
+        Database.conn.commit()
+        print(query_string)
+        print(name + " inserted into game table with " + fresh_id)
+
 
     @staticmethod
     def getFreshID(table):
@@ -53,46 +76,39 @@ class Database:
     @staticmethod
     def createPlayer(player):
         builder = "VALUES (" + player.id + ",'" + player.name + "')"
-        query_string = "INSERT INTO player (ID,NAME) " + builder
+        query_string = "INSERT INTO player_master (ID,NAME) " + builder
         Database.conn.execute(query_string)
         Database.conn.commit()
         print(query_string)
-        print(player.name + " inserted into player table with " + player.id)
+        print(player.name + " inserted into player_master table with " + player.id)
 
     @staticmethod
-    def createGame(name):
-        fresh_id = Database.getFreshID("game")
-        builder = "VALUES (" + fresh_id + ",'" + name + "')"
-        query_string = "INSERT INTO game (ID,NAME) " + builder
+    def createResult(game_id, winner_id, winner_elo, winner_result, loser_id, loser_elo, loser_result):
+        game_name = Database.getGameName(game_id)
+        table_name = game_name + "_results"
+        fresh_id = Database.getFreshID(table_name)
+        builder = "VALUES (" + str(fresh_id) + "," + str(winner_id) + "," + str(winner_elo) + "," + str(winner_result)
+        builder += "," + str(loser_id) + "," + str(loser_elo) + "," + str(loser_result) + ",DATETIME('now') )"
+        query_string = "INSERT INTO " + table_name + " (ID,WINNER_ID,WINNER_ORIGINAL_ELO,WINNER_RESULT_ELO,LOSER_ID,LOSER_ORIGINAL_ELO,LOSER_RESULT_ELO,CREATED) " + builder
         Database.conn.execute(query_string)
         Database.conn.commit()
-        print(query_string)
-        print(name + " inserted into game table with " + fresh_id)
+        Database.createEntry(game_id, winner_id, winner_result)
+        Database.createEntry(game_id, loser_id, loser_result)
+        print(str(Database.getPlayerName(winner_id)) + " inserted into result table with " + str(winner_elo))
 
     @staticmethod
-    def createInstance(winner_id, loser_id, game_id):
-        fresh_id = Database.getFreshID("instance")
-        builder = "VALUES (" + fresh_id + "," + str(game_id) + "," + str(winner_id) + "," + str(loser_id) + ",DATETIME('now'))"
-        query_string = "INSERT INTO instance (ID,GAME_ID,WINNER_ID,LOSER_ID,CREATED) " + builder
+    def createEntry(game_id, player_id, player_elo):
+        game_name = Database.getGameName(game_id)
+        table_name = game_name + "_players"
+        query_string = "UPDATE " + table_name + " set ELO = " + str(player_elo) + " where PLAYER_ID=" + str(player_id)
+        if(Database.getElo(player_id, game_id) == 1000):
+            query_string = "INSERT INTO " + table_name + " (PLAYER_ID,ELO) VALUES ( + " + str(player_id) + "," + str(player_elo) + ")"
         Database.conn.execute(query_string)
         Database.conn.commit()
-        #print(query_string)
-        print(str(winner_id) + " inserted into instance table with ID " + str(fresh_id))
-        return fresh_id
-
-    @staticmethod
-    def createResult(game_id, instance_id, player_id, elo):
-        fresh_id = Database.getFreshID("result")
-        builder = "VALUES (" + fresh_id + ",DATETIME('now')," + str(game_id) + "," + str(instance_id) + "," + str(player_id) + "," + str(elo) + ")"
-        query_string = "INSERT INTO result (ID,CREATED,GAME_ID,INSTANCE_ID,PLAYER_ID,ELO) " + builder
-        Database.conn.execute(query_string)
-        Database.conn.commit()
-        #print(query_string)
-        print(str(Database.getPlayerName(player_id)) + " inserted into result table with " + str(Database.getElo(player_id,game_id)))
 
     @staticmethod
     def getPlayerName(player_id):
-        header = "SELECT id, name from player WHERE id='" + str(player_id) + "'"
+        header = "SELECT id, name from player_master WHERE id='" + str(player_id) + "'"
         result = Database.conn.execute(header)
         for row in result:
             #print("PLAYER_ID = " + str(row[0]))
@@ -101,8 +117,26 @@ class Database:
         return 0
 
     @staticmethod
+    def getGameTable():
+        header = "SELECT id, name from game_master"
+        result = Database.conn.execute(header)
+        builder = ""
+        for row in result:
+            builder += '<li>' + 'ID: ' + str(row[0]) + ' NAME: ' + str(row[1]) + '</li>'
+        return builder
+
+    @staticmethod
+    def getPlayerTable():
+        header = "SELECT id, name from player_master"
+        result = Database.conn.execute(header)
+        builder = ""
+        for row in result:
+            builder += '<li>' + 'ID: ' + str(row[0]) + ' NAME: ' + str(row[1]) + '</li>'
+        return builder
+
+    @staticmethod
     def getGameName(game_id):
-        header = "SELECT id, name from game WHERE id='" + str(game_id) + "'"
+        header = "SELECT id, name from game_master WHERE id='" + str(game_id) + "'"
         result = Database.conn.execute(header)
         for row in result:
             #print("GAME_ID = " + str(row[0]))
@@ -111,13 +145,13 @@ class Database:
 
     @staticmethod
     def getElo(player_id,game_id):
-        header = "SELECT id, created, game_id, player_id, elo from result WHERE player_id='" + str(player_id) + "' AND game_id='" + str(game_id) + "'"
+        header = "SELECT player_id, elo from " + Database.getGameName(game_id) + "_players WHERE player_id='" + str(player_id) + "'"
         result = Database.conn.execute(header)
         count = 0
         elo = 1000
         for row in result:
             count += 1
-            elo = row[4]
+            elo = row[1]
         if count == 0:
             print("no results found, therefore ELO is default 1000")
             return elo

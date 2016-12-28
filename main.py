@@ -26,10 +26,26 @@ p = Player can call 4 methods
 3. a.win(b,1)
 4. a.lose(b,1)
 
+d = Database should only call createGame
+
+1. d.createGame(game_name)
+
+future methods?
+
+1. p.deletePlayer(player_id, game_id)
+2. p.renamePlayer(player_name) -> p.getPlayer -> p.renamePlayer
+3. p.deleteGame
+
+
 '''
 
 p = Player
-print("p = Player() success")
+print("p = Player success")
+d = Database
+print("d = Database success")
 
 a = p.getPlayer(1)
 b = p.getPlayer(2)
+
+print(a)
+print(b)
