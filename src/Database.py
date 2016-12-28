@@ -7,37 +7,58 @@ class Database:
     print("Opened elobase successfully")
 
     @staticmethod
-    def createMaster():
-        data = '''CREATE TABLE player (
+    def createPlayerMaster():
+        data = '''CREATE TABLE player_master (
         id INT PRIMARY KEY NOT NULL,
         name TEXT NOT NULL
-        );
+        );'''
+        Database.conn.execute(data)
+        print("table player_master(id, name) created")
 
-        CREATE TABLE game (
+    @staticmethod
+    def createGameMaster():
+        data = '''CREATE TABLE game_master (
         id INT PRIMARY KEY NOT NULL,
         name TEXT NOT NULL
-        );
+        );'''
+        Database.conn.execute(data)
+        print("table game_master(id, name) created")
 
-        CREATE TABLE instance (
-        id INT PRIMARY KEY NOT NULL,
-        created DATETIME NOT NULL,
-        game_id INT NOT NULL REFERENCES game(id),
-        winner_id INT NOT NULL REFERENCES player(id),
-        loser_id INT NOT NULL REFERENCES player(id)
-        );
+    @staticmethod
+    def createGameTable(game_name):
 
-        CREATE TABLE result (
-        id INT PRIMARY KEY NOT NULL,
-        created DATETIME NOT NULL,
-        game_id INT NOT NULL REFERENCES game(id),
-        instance_id INT NOT NULL REFERENCES instance(id),
-        player_id INT NOT NULL REFERENCES player(id),
+        #create game_players table
+        player_table = 'CREATE TABLE ' + game_name.lower() + '''_players(
+        player_id INT NOT NULL REFERENCES player_master(id),
         elo INT NOT NULL
         );'''
-        queries = data.split(";")
-        for query in queries:
-            Database.conn.execute(query)
-        print("master 4 tables created")
+        Database.conn.execute(player_table)
+        print("table " + game_name + "_players(player_id, elo) created")
+
+        #create game_results table
+        result_table = 'CREATE TABLE ' + game_name.lower() + '''_results(
+        id INT PRIMARY KEY NOT NULL,
+        winner_id INT NOT NULL REFERENCES player_master(id),
+        winner_original_elo INT NOT NULL,
+        winner_result_elo INT NOT NULL,
+        loser_id INT NOT NULL REFERENCES player_master(id),
+        loser_original_elo INT NOT NULL,
+        loser_result_elo INT NOT NULL,
+        created DATETIME NOT NULL
+        );'''
+        Database.conn.execute(result_table)
+        print("table " + game_name + "_results(alot) created")
+
+        #insert into game_master table
+        fresh_id = Database.getFreshID("game_master")
+        builder = "VALUES (" + fresh_id + ",'" + game_name + "')"
+        query_string = "INSERT INTO game_master (ID,NAME) " + builder
+        Database.conn.execute(query_string)
+
+        Database.conn.commit()
+        print(query_string)
+        print(game_name + " inserted into game table with " + fresh_id)
+
 
     @staticmethod
     def getFreshID(table):
@@ -53,11 +74,11 @@ class Database:
     @staticmethod
     def createPlayer(player):
         builder = "VALUES (" + player.id + ",'" + player.name + "')"
-        query_string = "INSERT INTO player (ID,NAME) " + builder
+        query_string = "INSERT INTO player_master (ID,NAME) " + builder
         Database.conn.execute(query_string)
         Database.conn.commit()
         print(query_string)
-        print(player.name + " inserted into player table with " + player.id)
+        print(player.name + " inserted into player_master table with " + player.id)
 
     @staticmethod
     def createGame(name):
@@ -92,7 +113,7 @@ class Database:
 
     @staticmethod
     def getPlayerName(player_id):
-        header = "SELECT id, name from player WHERE id='" + str(player_id) + "'"
+        header = "SELECT id, name from player_master WHERE id='" + str(player_id) + "'"
         result = Database.conn.execute(header)
         for row in result:
             #print("PLAYER_ID = " + str(row[0]))

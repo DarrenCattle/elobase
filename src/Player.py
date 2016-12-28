@@ -21,14 +21,10 @@ class Player:
             return Player(i, name)
 
     def createPlayer(player_name):
-        i = Database.getFreshID("player")
+        i = Database.getFreshID("player_master")
         player = Player(i,player_name)
         Database.createPlayer(player)
         return Player.getPlayer(i)
-
-
-    def disp(self):
-        print('Name: ' + self.name + ', ID: ' + self.id)
 
     def win(self,PB,game_id):
         if(self.id==PB.id):
