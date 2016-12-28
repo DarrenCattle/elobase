@@ -3,7 +3,7 @@ import sqlite3
 
 class Database:
 
-    conn = sqlite3.connect('elobase.db',detect_types=sqlite3.PARSE_DECLTYPES)
+    conn = sqlite3.connect('elobase.db',check_same_thread=False)
     print("Opened elobase successfully")
 
     @staticmethod
@@ -115,6 +115,24 @@ class Database:
             #print("PLAYER_NAME = " + str(row[1]))
             return row[1]
         return 0
+
+    @staticmethod
+    def getGameTable():
+        header = "SELECT id, name from game_master"
+        result = Database.conn.execute(header)
+        builder = ""
+        for row in result:
+            builder += '<li>' + 'ID: ' + str(row[0]) + ' NAME: ' + str(row[1]) + '</li>'
+        return builder
+
+    @staticmethod
+    def getPlayerTable():
+        header = "SELECT id, name from player_master"
+        result = Database.conn.execute(header)
+        builder = ""
+        for row in result:
+            builder += '<li>' + 'ID: ' + str(row[0]) + ' NAME: ' + str(row[1]) + '</li>'
+        return builder
 
     @staticmethod
     def getGameName(game_id):
