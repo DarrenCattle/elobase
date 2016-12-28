@@ -1,5 +1,6 @@
 # elobase     
-`python -i main.py`    
+`python -i main.py` 
+`python index.py`
 # Tech    
  - Python 3    
  - Sqlite 3 (for development)
