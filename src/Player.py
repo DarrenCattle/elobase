@@ -20,10 +20,10 @@ class Player:
         else:
             return Player(i, name)
 
-    def createPlayer(player_name):
+    def createPlayer(player_name, pwd):
         i = Database.getFreshID("player_master")
         player = Player(i,player_name)
-        Database.createPlayer(player)
+        Database.createPlayer(player, pwd)
         return Player.getPlayer(i)
 
     def win(self,PB,game_id):

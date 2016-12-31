@@ -44,8 +44,14 @@ print("p = Player success")
 d = Database
 print("d = Database success")
 
-a = p.getPlayer(1)
-b = p.getPlayer(2)
+def setup():
+    d.createPlayerMaster()
+    d.createGameMaster()
+    a = p.createPlayer("a","a")
+    b = p.createPlayer("b","b")
 
-print(a)
-print(b)
+#a = p.getPlayer(1)
+#b = p.getPlayer(2)
+
+#print(a)
+#print(b)

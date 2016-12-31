@@ -10,10 +10,11 @@ class Database:
     def createPlayerMaster():
         data = '''CREATE TABLE player_master (
         id INT PRIMARY KEY NOT NULL,
-        name TEXT NOT NULL
+        name TEXT NOT NULL,
+        password TEXT
         );'''
         Database.conn.execute(data)
-        print("table player_master(id, name) created")
+        print("table player_master(id, name, password) created")
 
     @staticmethod
     def createGameMaster():
@@ -74,9 +75,9 @@ class Database:
                 return str(x)
 
     @staticmethod
-    def createPlayer(player):
-        builder = "VALUES (" + player.id + ",'" + player.name + "')"
-        query_string = "INSERT INTO player_master (ID,NAME) " + builder
+    def createPlayer(player, pwd):
+        builder = "VALUES (" + player.id + ",'" + player.name + "','" + pwd + "')"
+        query_string = "INSERT INTO player_master (ID,NAME,PASSWORD) " + builder
         Database.conn.execute(query_string)
         Database.conn.commit()
         print(query_string)
@@ -142,6 +143,23 @@ class Database:
             #print("GAME_ID = " + str(row[0]))
             #print("GAME_NAME = " + str(row[1]))
             return row[1]
+
+    @staticmethod
+    def authenticatePlayer(user_id, password):
+        header = "SELECT id, name, password from player_master WHERE id='" + str(user_id) + "'"
+        result = Database.conn.execute(header)
+        for row in result:
+            if(password == str(row[2])):
+                return True
+        return False
+
+    @staticmethod
+    def nameAvailable(name):
+        header = "SELECT id, name, password from player_master WHERE name='" + str(name) + "'"
+        cursor = Database.conn.execute(header)
+        for row in cursor:
+            return False
+        return True
 
     @staticmethod
     def getElo(player_id,game_id):
