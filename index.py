@@ -1,7 +1,7 @@
 from src.Player import Player
 from src.Database import Database
 
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, render_template_string, request, redirect, url_for
 
 app = Flask(__name__)
 app.secret_key = 'hanzomain'
@@ -53,6 +53,10 @@ def request_loader(request):
 def unauthorized_handler():
     return 'Unauthorized'
 
+@app.route('/')
+def default():
+    return redirect(url_for('login'))
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
@@ -95,19 +99,25 @@ def protected():
             <a href="/logout">Logout</a>
         '''
 
+@app.route('/dashboard')
+@flask_login.login_required
+def dash():
+    return render_template('dash.html', name=flask_login.current_user.id, games=Database.getGameTable(), players=Database.getPlayerTable())
 
-
-@app.route('/')
-def hello():
-    return render_template('hello.html')
-
-@app.route("/players")
-def players():
-    return Database.getPlayerTable()
-
-@app.route("/games")
+@app.route('/creategame', methods=['GET', 'POST'])
+@flask_login.login_required
 def games():
-    return Database.getGameTable()
+    if request.method == 'GET':
+        return '''
+           <form action='login' method='POST'>
+            <input type='text' name='game' id='game' placeholder='game'></input>
+            <input type='submit' name='submit'></input>
+           </form>
+           '''
+    game = request.form['game']
+    print(game)
+
+    return game + ' added'
 
 if __name__ == "__main__":
     app.run(debug = True)
