@@ -46,7 +46,7 @@ def request_loader(request):
         user.is_authenticated = Database.authenticatePlayer(username,pw)
         return user
     else:
-        user.is_authenticated = False
+        #user.is_authenticated = False
         return
 
 @login_manager.unauthorized_handler
@@ -82,9 +82,9 @@ def login():
         user = User()
         user.id = username
         flask_login.login_user(user)
-        return redirect(url_for('protected'))
+        return redirect(url_for('dashboard'))
 
-    return 'Bad login'
+    return redirect(url_for('login'))
 
 @app.route('/logout')
 def logout():
@@ -101,7 +101,7 @@ def protected():
 
 @app.route('/dashboard')
 @flask_login.login_required
-def dash():
+def dashboard():
     return render_template('dash.html', name=flask_login.current_user.id, games=Database.getGameTable(), players=Database.getPlayerTable())
 
 @app.route('/creategame', methods=['GET', 'POST'])
