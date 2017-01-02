@@ -145,8 +145,8 @@ class Database:
             return row[1]
 
     @staticmethod
-    def authenticatePlayer(user_id, password):
-        header = "SELECT id, name, password from player_master WHERE id='" + str(user_id) + "'"
+    def authenticatePlayer(username, password):
+        header = "SELECT id, name, password from player_master WHERE name='" + username + "'"
         result = Database.conn.execute(header)
         for row in result:
             if(password == str(row[2])):

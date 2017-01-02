@@ -17,8 +17,8 @@ class User(flask_login.UserMixin):
 
 @login_manager.user_loader
 def user_loader(username):
-    if username not in users:
-        return
+    #if username not in users:
+        #return
 
     user = User()
     user.id = username
@@ -29,6 +29,7 @@ def request_loader(request):
     username = request.form.get('username')
     pw = request.form.get('pw')
     #if username not in users:
+        #print(username)
         #return
 
     user = User()
@@ -38,10 +39,14 @@ def request_loader(request):
     # hashes using constant-time comparison!
     #user.is_authenticated = request.form['pw'] == users[username]['pw']
 
-    if Database.nameAvailable(username):
+    print(username, Database.nameAvailable(username))
+    #return user
+
+    if Database.nameAvailable(username) and username is not None:
         user.is_authenticated = Database.authenticatePlayer(username,pw)
         return user
     else:
+        user.is_authenticated = False
         return
 
 @login_manager.unauthorized_handler
@@ -61,8 +66,15 @@ def login():
 
     username = request.form['username']
     pw = request.form['pw']
+    print(username, pw, Database.authenticatePlayer(username,pw))
 
-    if request.form['pw'] == users[username]['pw']:
+    '''if request.form['pw'] == users[username]['pw']:
+        user = User()
+        user.id = username
+        flask_login.login_user(user)
+        return redirect(url_for('protected'))'''
+
+    if Database.authenticatePlayer(username,pw):
         user = User()
         user.id = username
         flask_login.login_user(user)
@@ -85,7 +97,7 @@ def protected():
 
 
 
-@app.route("/")
+@app.route('/')
 def hello():
     return render_template('hello.html')
 
