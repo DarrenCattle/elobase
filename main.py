@@ -6,6 +6,7 @@ November 2016
 
 from src.Player import Player
 from src.Database import Database
+import src.queries
 
 #a = Player("A")
 #b = Player("B")

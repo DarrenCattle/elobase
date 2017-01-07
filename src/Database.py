@@ -1,8 +1,11 @@
 import os
 import sqlite3
+import sqlalchemy
+from sqlalchemy import create_engine
 
 class Database:
 
+    engine = create_engine('sqlite:///:memory:', echo=True)
     conn = sqlite3.connect('elobase.db',check_same_thread=False)
     print("Opened elobase successfully")
 

@@ -10,8 +10,6 @@ import flask_login
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 
-users = {'foo': {'pw': 'bar'}}
-
 class User(flask_login.UserMixin):
     pass
 
@@ -72,12 +70,6 @@ def login():
     pw = request.form['pw']
     print(username, pw, Database.authenticatePlayer(username,pw))
 
-    '''if request.form['pw'] == users[username]['pw']:
-        user = User()
-        user.id = username
-        flask_login.login_user(user)
-        return redirect(url_for('protected'))'''
-
     if Database.authenticatePlayer(username,pw):
         user = User()
         user.id = username
@@ -106,18 +98,20 @@ def dashboard():
 
 @app.route('/creategame', methods=['GET', 'POST'])
 @flask_login.login_required
-def games():
+def creategame():
     if request.method == 'GET':
         return '''
-           <form action='login' method='POST'>
+           <form action='creategame' method='POST'>
             <input type='text' name='game' id='game' placeholder='game'></input>
             <input type='submit' name='submit'></input>
            </form>
            '''
-    game = request.form['game']
-    print(game)
 
-    return game + ' added'
+    game = request.form['game']
+    if game is not None:
+        Database.createGameTable(game)
+
+    return redirect(url_for('dashboard'))
 
 if __name__ == "__main__":
     app.run(debug = True)
