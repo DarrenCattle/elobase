@@ -1,5 +1,6 @@
-from src.Player import Player
-from src.Database import Database
+from src.player import Player
+from src.database import Database
+from src.actions import create_game_tables
 
 from flask import Flask, render_template, render_template_string, request, redirect, url_for
 
@@ -12,6 +13,9 @@ login_manager.init_app(app)
 
 class User(flask_login.UserMixin):
     pass
+
+if __name__ == "__main__":
+    app.run(debug = True)
 
 @login_manager.user_loader
 def user_loader(username):
@@ -110,8 +114,24 @@ def creategame():
     game = request.form['game']
     if game is not None:
         Database.createGameTable(game)
+        create_game_tables(game)
 
     return redirect(url_for('dashboard'))
 
-if __name__ == "__main__":
-    app.run(debug = True)
+@app.route('/deletegame', methods=['GET', 'POST'])
+@flask_login.login_required
+def creategame():
+    if request.method == 'GET':
+        return '''
+           <form action='deletegame' method='POST'>
+            <input type='text' name='game' id='game' placeholder='game'></input>
+            <input type='submit' name='submit'></input>
+           </form>
+           '''
+
+    game = request.form['game']
+    if game is not None:
+        Database.createGameTable(game)
+        create_game_tables(game)
+
+    return redirect(url_for('dashboard'))

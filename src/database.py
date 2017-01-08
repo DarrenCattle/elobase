@@ -179,3 +179,10 @@ class Database:
         #print(str(player_id) + " player elo: " + str(elo))
         return elo
 
+    @staticmethod
+    def deleteTable(name):
+        header = "DROP TABLE IF EXISTS " + name.lower()
+        result = Database.conn.execute(header)
+        for row in result:
+            print(row)
+        return name.lower() + ' table deleted'

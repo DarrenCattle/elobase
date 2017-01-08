@@ -8,9 +8,7 @@ from sqlalchemy import create_engine
 Base = declarative_base()
 engine = create_engine('sqlite:///alchemy.db')
 meta = MetaData(bind=engine)
-db_session = scoped_session(sessionmaker(autocommit=False,
-                                         autoflush=False,
-                                         bind=engine))
+db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
 
 def create_default():
     Base.metadata.create_all(engine)
@@ -62,3 +60,16 @@ class Game(Base):
 
     def __repr__(self):
         return '<Game %r>' % (self.name)
+
+class Elo(Base):
+    name = ""
+    __tablename__ = name + '_results'
+    id = Column(Integer, primary_key=True)
+    elo = Column(Integer)
+
+    def __init__(self, id=None, elo=None):
+        self.id = id
+        self.elo = elo
+
+    def __repr__(self):
+        return '<Elo %r>' % (self.elo)

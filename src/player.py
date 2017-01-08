@@ -1,5 +1,5 @@
 import math
-from src.Database import Database
+from src.database import Database
 
 class Player:
 
