@@ -1,15 +1,16 @@
 import os
 import sys
 from sqlalchemy import Column, ForeignKey, Integer, String, Table, DateTime, func, MetaData
-from sqlalchemy.orm import relationship, scoped_session, sessionmaker, mapper
+from sqlalchemy.orm import relationship, scoped_session, sessionmaker, query
 from sqlalchemy import create_engine
-from database import Database
-from queries import Game, User
+from src.queries import Game, User
 
 class Actions:
 
     engine = create_engine('sqlite:///alchemy.db')
     meta = MetaData(bind=engine)
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
 
     def players_table(name):
         return Table(name, Actions.meta,
@@ -29,7 +30,7 @@ class Actions:
                      Column('created', DateTime(timezone=True), default=func.now()),
                      schema=None)
 
-    def create_game_tables(self,name):
+    def create_game_tables(name):
         player_tab = name.lower() + '_players'
         result_tab = name.lower() + '_results'
 
@@ -38,15 +39,15 @@ class Actions:
 
         players_table.create(bind=Actions.engine)
         results_table.create(bind=Actions.engine)
+        print(player_tab + ' table created')
+        print(result_tab + ' table created')
 
-    def delete_game_tables(self,name):
-        table_players = name.lower() + '_players'
-        table_results = name.lower() + '_results'
-        Game.query.filter_by(name=name).delete()
-        Database.deleteTable(table_players)
-        Database.deleteTable(table_results)
+        new_game = Game(name=name)
+        Actions.session.add(new_game)
+        Actions.session.commit()
+        print(name + ' game added to games table with id ' + str(new_game.id))
 
-    def delete_game_tables1(self,name):
+    def delete_game_tables(name):
         player_tab = name.lower() + '_players'
         result_tab = name.lower() + '_results'
 
@@ -55,8 +56,43 @@ class Actions:
 
         players_table.drop(Actions.engine)
         results_table.drop(Actions.engine)
-        #Game.query.filter_by(name=name).delete()
-        print(player_tab + ' table created')
-        print(result_tab + ' table created')
+        print(player_tab + ' table deleted')
+        print(result_tab + ' table deleted')
+
+        game = Actions.session.query(Game).filter(Game.name==name).first()
+        if game is not None:
+            Actions.session.delete(game)
+            Actions.session.commit()
+        print(name + ' game deleted from games table')
 
 
+    def create_user(name, password):
+        new_user = User(name=name, password=password)
+        Actions.session.add(new_user)
+        Actions.session.commit()
+        print(name + ' user has been created with id ' + str(new_user.id))
+
+    def delete_user(name):
+        user = Actions.session.query(User).filter(User.name==name).first()
+        if user is not None:
+            Actions.session.delete(user)
+            Actions.session.commit()
+        print(name + ' user has been deleted')
+
+    def authenticate_user(name, password):
+        user = Actions.session.query(User).filter(User.name==name).first()
+        if user.password == password:
+            return True
+        return False
+
+    def name_available(name):
+        user = Actions.session.query(User).filter(User.name==name).first()
+        if user is None:
+            return True
+        return False
+
+    def get_users():
+        return 'users'
+
+    def get_games():
+        return 'games'
