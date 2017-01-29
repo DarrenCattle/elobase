@@ -16,7 +16,7 @@ class Actions:
         return Table(name, Actions.meta,
                      Column('player_id', Integer, ForeignKey(User.id)),
                      Column('elo', Integer),
-                     schema=None)
+                     schema=None, extend_existing=True)
 
     def results_table(name):
         return Table(name, Actions.meta,
@@ -28,7 +28,7 @@ class Actions:
                      Column('loser_start_elo', Integer),
                      Column('loser_end_elo', Integer),
                      Column('created', DateTime(timezone=True), default=func.now()),
-                     schema=None)
+                     schema=None, extend_existing=True)
 
     def create_game_tables(name):
         player_tab = name.lower() + '_players'
@@ -92,7 +92,15 @@ class Actions:
         return False
 
     def get_users():
-        return 'users'
+        result = []
+        users = Actions.session.query(User).all()
+        for user in users:
+            result.append(user.name)
+        return result
 
     def get_games():
-        return 'games'
+        result = []
+        games = Actions.session.query(Game).all()
+        for game in games:
+            result.append(game.name)
+        return result

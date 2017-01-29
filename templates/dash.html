@@ -3,9 +3,13 @@
 <body>
     <h1>Hello {{ name }}!</h1>
     <h2>Player Table</h2>
-    {{players|safe}}
+    {% for player in players %}
+        <li>{{player}}</li>
+    {% endfor %}
     <h2>Game Table</h2>
-    {{games|safe}}
+    {% for game in games %}
+        <li>{{game}}</li>
+    {% endfor %}
     <h2>Add Game</h2>
     <form action='creategame' method='POST'>
         <input type='text' name='game' id='game' placeholder='game'></input>
